@@ -1,5 +1,6 @@
 package com.jackliu.signalatlas.radio;
 
+import com.jackliu.signalatlas.brand.Brand;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -13,9 +14,9 @@ public class RadioModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(nullable = false)
-    private String brand;
+    @ManyToOne
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
 
     @NotBlank
     @Column(nullable = false)
@@ -56,11 +57,11 @@ public class RadioModel {
         return id;
     }
 
-    public String getBrand() {
+    public Brand getBrand() {
         return brand;
     }
 
-    public void setBrand(String brand) {
+    public void setBrand(Brand brand) {
         this.brand = brand;
     }
 

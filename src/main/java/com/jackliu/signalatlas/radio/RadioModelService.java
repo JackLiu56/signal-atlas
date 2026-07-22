@@ -1,5 +1,7 @@
 package com.jackliu.signalatlas.radio;
 
+import com.jackliu.signalatlas.brand.Brand;
+import com.jackliu.signalatlas.brand.BrandRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,9 +10,14 @@ import java.util.List;
 public class RadioModelService {
 
     private final RadioModelRepository radioModelRepository;
+    private final BrandRepository brandRepository;
 
-    public RadioModelService(RadioModelRepository radioModelRepository) {
+    public RadioModelService(
+            RadioModelRepository radioModelRepository,
+            BrandRepository brandRepository
+    ) {
         this.radioModelRepository = radioModelRepository;
+        this.brandRepository = brandRepository;
     }
 
     public List<RadioModel> getAllRadioModels() {
@@ -22,44 +29,69 @@ public class RadioModelService {
                 .orElseThrow(() -> new RuntimeException("Radio model not found: " + id));
     }
 
-    public RadioModel createRadioModel(RadioModel radioModel) {
+    public RadioModel createRadioModel(RadioModelRequest request) {
+        Brand brand = brandRepository.findById(request.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Brand not found: " + request.getBrandId()));
+
         boolean duplicateExists =
                 radioModelRepository
-                        .findByBrandIgnoreCaseAndModelNameIgnoreCase(
-                                radioModel.getBrand(),
-                                radioModel.getModelName()
+                        .findByBrand_IdAndModelNameIgnoreCase(
+                                request.getBrandId(),
+                                request.getModelName()
                         )
                         .isPresent();
 
         if (duplicateExists) {
             throw new RuntimeException(
                     "Duplicate radio model: " +
-                            radioModel.getBrand() +
+                            brand.getName() +
                             " " +
-                            radioModel.getModelName()
+                            request.getModelName()
             );
         }
+
+        RadioModel radioModel = new RadioModel();
+
+        applyRequestToRadioModel(
+                radioModel,
+                request,
+                brand
+        );
 
         return radioModelRepository.save(radioModel);
     }
 
-    public RadioModel updateRadioModel(Long id, RadioModel updatedRadioModel) {
-        RadioModel existingRadioModel = getRadioModelById(id);
+    public RadioModel updateRadioModel(
+            Long id,
+            RadioModelRequest request
+    ) {
+        RadioModel existingRadioModel =
+                getRadioModelById(id);
 
-        existingRadioModel.setBrand(updatedRadioModel.getBrand());
-        existingRadioModel.setModelName(updatedRadioModel.getModelName());
-        existingRadioModel.setModelNumber(updatedRadioModel.getModelNumber());
-        existingRadioModel.setCategory(updatedRadioModel.getCategory());
-        existingRadioModel.setFrequencyBand(updatedRadioModel.getFrequencyBand());
-        existingRadioModel.setFrequencyRange(updatedRadioModel.getFrequencyRange());
-        existingRadioModel.setModulation(updatedRadioModel.getModulation());
-        existingRadioModel.setDigitalProtocol(updatedRadioModel.getDigitalProtocol());
-        existingRadioModel.setReleaseYear(updatedRadioModel.getReleaseYear());
-        existingRadioModel.setDiscontinuedYear(updatedRadioModel.getDiscontinuedYear());
-        existingRadioModel.setEstimatedMarketLow(updatedRadioModel.getEstimatedMarketLow());
-        existingRadioModel.setEstimatedMarketHigh(updatedRadioModel.getEstimatedMarketHigh());
-        existingRadioModel.setDescription(updatedRadioModel.getDescription());
-        existingRadioModel.setImageUrl(updatedRadioModel.getImageUrl());
+        Brand brand = brandRepository.findById(request.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Brand not found: " + request.getBrandId()));
+
+        radioModelRepository
+                .findByBrand_IdAndModelNameIgnoreCase(
+                        request.getBrandId(),
+                        request.getModelName()
+                )
+                .ifPresent(duplicate -> {
+                    if (!duplicate.getId().equals(id)) {
+                        throw new RuntimeException(
+                                "Duplicate radio model: " +
+                                        brand.getName() +
+                                        " " +
+                                        request.getModelName()
+                        );
+                    }
+                });
+
+        applyRequestToRadioModel(
+                existingRadioModel,
+                request,
+                brand
+        );
 
         return radioModelRepository.save(existingRadioModel);
     }
@@ -79,7 +111,7 @@ public class RadioModelService {
         return radioModelRepository.findAll()
                 .stream()
                 .filter(radio ->
-                        containsIgnoreCase(radio.getBrand(), searchText)
+                        containsIgnoreCase(radio.getBrand().getName(), searchText)
                                 || containsIgnoreCase(radio.getModelName(), searchText)
                                 || containsIgnoreCase(radio.getModelNumber(), searchText)
                                 || containsIgnoreCase(radio.getFrequencyRange(), searchText)
@@ -88,7 +120,31 @@ public class RadioModelService {
                 .toList();
     }
 
-    private boolean containsIgnoreCase(String value, String searchText) {
+    private void applyRequestToRadioModel(
+            RadioModel radioModel,
+            RadioModelRequest request,
+            Brand brand
+    ) {
+        radioModel.setBrand(brand);
+        radioModel.setModelName(request.getModelName());
+        radioModel.setModelNumber(request.getModelNumber());
+        radioModel.setCategory(request.getCategory());
+        radioModel.setFrequencyBand(request.getFrequencyBand());
+        radioModel.setFrequencyRange(request.getFrequencyRange());
+        radioModel.setModulation(request.getModulation());
+        radioModel.setDigitalProtocol(request.getDigitalProtocol());
+        radioModel.setReleaseYear(request.getReleaseYear());
+        radioModel.setDiscontinuedYear(request.getDiscontinuedYear());
+        radioModel.setEstimatedMarketLow(request.getEstimatedMarketLow());
+        radioModel.setEstimatedMarketHigh(request.getEstimatedMarketHigh());
+        radioModel.setDescription(request.getDescription());
+        radioModel.setImageUrl(request.getImageUrl());
+    }
+
+    private boolean containsIgnoreCase(
+            String value,
+            String searchText
+    ) {
         return value != null &&
                 value.toLowerCase().contains(searchText);
     }

@@ -1,6 +1,5 @@
 package com.jackliu.signalatlas.radio;
 
-
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +8,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/radios")
 @CrossOrigin(origins = "http://localhost:4200")
-
 public class RadioModelController {
 
     private final RadioModelService radioModelService;
@@ -37,17 +35,17 @@ public class RadioModelController {
 
     @PostMapping
     public RadioModel createRadioModel(
-            @Valid @RequestBody RadioModel radioModel
+            @Valid @RequestBody RadioModelRequest request
     ) {
-        return radioModelService.createRadioModel(radioModel);
+        return radioModelService.createRadioModel(request);
     }
 
     @PutMapping("/{id}")
     public RadioModel updateRadioModel(
             @PathVariable Long id,
-            @Valid @RequestBody RadioModel radioModel
+            @Valid @RequestBody RadioModelRequest request
     ) {
-        return radioModelService.updateRadioModel(id, radioModel);
+        return radioModelService.updateRadioModel(id, request);
     }
 
     @DeleteMapping("/{id}")

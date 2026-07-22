@@ -7,12 +7,12 @@ import java.util.Optional;
 
 public interface RadioModelRepository extends JpaRepository<RadioModel, Long> {
 
-    Optional<RadioModel> findByBrandIgnoreCaseAndModelNameIgnoreCase(
-            String brand,
+    Optional<RadioModel> findByBrand_IdAndModelNameIgnoreCase(
+            Long brandId,
             String modelName
     );
 
-    List<RadioModel> findByBrandContainingIgnoreCase(String brand);
+    List<RadioModel> findByBrand_NameContainingIgnoreCase(String brandName);
 
     List<RadioModel> findByModelNameContainingIgnoreCase(String modelName);
 }
