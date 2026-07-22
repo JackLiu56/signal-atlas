@@ -33,6 +33,27 @@ public class RadioModelController {
         return radioModelService.searchRadioModels(q);
     }
 
+    @GetMapping("/filter")
+    public List<RadioModel> filterRadioModels(
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) RadioCategory category,
+            @RequestParam(required = false) FrequencyBand frequencyBand,
+            @RequestParam(required = false) String digitalProtocol,
+            @RequestParam(required = false) Integer releaseYearFrom,
+            @RequestParam(required = false) Integer releaseYearTo,
+            @RequestParam(required = false) String q
+    ) {
+        return radioModelService.filterRadioModels(
+                brandId,
+                category,
+                frequencyBand,
+                digitalProtocol,
+                releaseYearFrom,
+                releaseYearTo,
+                q
+        );
+    }
+
     @PostMapping
     public RadioModel createRadioModel(
             @Valid @RequestBody RadioModelRequest request

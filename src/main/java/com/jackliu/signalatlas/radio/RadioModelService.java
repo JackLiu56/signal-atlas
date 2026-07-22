@@ -120,6 +120,28 @@ public class RadioModelService {
                 .toList();
     }
 
+    public List<RadioModel> filterRadioModels(
+            Long brandId,
+            RadioCategory category,
+            FrequencyBand frequencyBand,
+            String digitalProtocol,
+            Integer releaseYearFrom,
+            Integer releaseYearTo,
+            String keyword
+    ) {
+        return radioModelRepository.findAll(
+                RadioModelSpecification.filter(
+                        brandId,
+                        category,
+                        frequencyBand,
+                        digitalProtocol,
+                        releaseYearFrom,
+                        releaseYearTo,
+                        keyword
+                )
+        );
+    }
+
     private void applyRequestToRadioModel(
             RadioModel radioModel,
             RadioModelRequest request,
