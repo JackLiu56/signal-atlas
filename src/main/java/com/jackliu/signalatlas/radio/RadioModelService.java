@@ -2,6 +2,8 @@ package com.jackliu.signalatlas.radio;
 
 import com.jackliu.signalatlas.brand.Brand;
 import com.jackliu.signalatlas.brand.BrandRepository;
+import com.jackliu.signalatlas.spec.RadioSpecRepository;
+import com.jackliu.signalatlas.spec.RadioSpecResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +13,16 @@ public class RadioModelService {
 
     private final RadioModelRepository radioModelRepository;
     private final BrandRepository brandRepository;
+    private final RadioSpecRepository radioSpecRepository;
 
     public RadioModelService(
             RadioModelRepository radioModelRepository,
-            BrandRepository brandRepository
+            BrandRepository brandRepository,
+            RadioSpecRepository radioSpecRepository
     ) {
         this.radioModelRepository = radioModelRepository;
         this.brandRepository = brandRepository;
+        this.radioSpecRepository = radioSpecRepository;
     }
 
     public List<RadioModel> getAllRadioModels() {
@@ -27,6 +32,22 @@ public class RadioModelService {
     public RadioModel getRadioModelById(Long id) {
         return radioModelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Radio model not found: " + id));
+    }
+
+    public RadioModelDetailResponse getRadioModelDetailById(Long id) {
+        RadioModel radioModel = getRadioModelById(id);
+
+        List<RadioSpecResponse> specs =
+                radioSpecRepository
+                        .findByRadioModel_IdOrderByDisplayOrderAsc(id)
+                        .stream()
+                        .map(RadioSpecResponse::new)
+                        .toList();
+
+        return new RadioModelDetailResponse(
+                radioModel,
+                specs
+        );
     }
 
     public RadioModel createRadioModel(RadioModelRequest request) {

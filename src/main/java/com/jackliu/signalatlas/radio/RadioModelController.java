@@ -21,6 +21,13 @@ public class RadioModelController {
         return radioModelService.getAllRadioModels();
     }
 
+    @GetMapping("/{id}/details")
+    public RadioModelDetailResponse getRadioModelDetailById(
+            @PathVariable long id
+    ){
+        return radioModelService.getRadioModelDetailById(id);
+    }
+
     @GetMapping("/{id}")
     public RadioModel getRadioModelById(@PathVariable Long id) {
         return radioModelService.getRadioModelById(id);
