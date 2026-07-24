@@ -2,12 +2,18 @@ package com.jackliu.signalatlas.radio;
 
 import com.jackliu.signalatlas.brand.Brand;
 import com.jackliu.signalatlas.brand.BrandRepository;
+import com.jackliu.signalatlas.common.PagedResponse;
 import com.jackliu.signalatlas.exception.DuplicateResourceException;
 import com.jackliu.signalatlas.exception.ResourceNotFoundException;
 import com.jackliu.signalatlas.spec.RadioSpecRepository;
 import com.jackliu.signalatlas.spec.RadioSpecResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -143,6 +149,67 @@ public class RadioModelService {
                 .toList();
     }
 
+    public PagedResponse<RadioModelSummaryResponse> getRadioCatalog(
+            Long brandId,
+            RadioCategory category,
+            FrequencyBand frequencyBand,
+            String digitalProtocol,
+            Integer releaseYearFrom,
+            Integer releaseYearTo,
+            String keyword,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ){
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 50);
+
+        Sort.Direction sortDirection =
+                "desc".equalsIgnoreCase(direction)
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC;
+
+        String safeSortBy = normalizeSortBy(sortBy);
+
+        Pageable pageable = PageRequest.of(
+                safePage,
+                safeSize,
+                Sort.by(sortDirection, safeSortBy)
+        );
+
+        Page<RadioModel> radioModelPage =
+                radioModelRepository.findAll(
+                        RadioModelSpecification.filter(
+                                brandId,
+                                category,
+                                frequencyBand,
+                                digitalProtocol,
+                                releaseYearFrom,
+                                releaseYearTo,
+                                keyword
+                                ),
+                        pageable
+                );
+
+        List<RadioModelSummaryResponse> content =
+                radioModelPage
+                        .getContent()
+                        .stream()
+                        .map(RadioModelSummaryResponse::new)
+                        .toList();
+
+        return new PagedResponse<>(
+                content,
+                radioModelPage.getNumber(),
+                radioModelPage.getSize(),
+                radioModelPage.getTotalElements(),
+                radioModelPage.getTotalPages(),
+                radioModelPage.isFirst(),
+                radioModelPage.isLast()
+        );
+    };
+
     public List<RadioModel> filterRadioModels(
             Long brandId,
             RadioCategory category,
@@ -163,6 +230,22 @@ public class RadioModelService {
                         keyword
                 )
         );
+    }
+
+    private String normalizeSortBy(String sortBy) {
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            return "modelName";
+        }
+
+        return switch (sortBy){
+            case "brandName" -> "brandName";
+            case "modelName" -> "modelName";
+            case "releaseYear" -> "releaseYear";
+            case "estimatedMarketLow" -> "estimatedMarketLow";
+            case "estimatedMarketHigh" -> "estimatedMarketHigh";
+            case "createdAt" -> "createdAt";
+            default -> "modelName";
+        };
     }
 
     private void applyRequestToRadioModel(

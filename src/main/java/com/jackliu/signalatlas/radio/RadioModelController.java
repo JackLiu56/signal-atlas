@@ -1,5 +1,6 @@
 package com.jackliu.signalatlas.radio;
 
+import com.jackliu.signalatlas.common.PagedResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,35 @@ public class RadioModelController {
             @PathVariable long id
     ){
         return radioModelService.getRadioModelDetailById(id);
+    }
+
+    @GetMapping("/catalog")
+    public PagedResponse<RadioModelSummaryResponse> getRadioCatalog(
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) RadioCategory category,
+            @RequestParam(required = false) FrequencyBand frequencyBand,
+            @RequestParam(required = false) String digitalProtocol,
+            @RequestParam(required = false) Integer releaseYearFrom,
+            @RequestParam(required = false) Integer releaseYearTo,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "modelName") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ){
+        return radioModelService.getRadioCatalog(
+                brandId,
+                category,
+                frequencyBand,
+                digitalProtocol,
+                releaseYearFrom,
+                releaseYearTo,
+                q,
+                page,
+                size,
+                sortBy,
+                direction
+        );
     }
 
     @GetMapping("/{id}")
