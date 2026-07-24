@@ -1,5 +1,6 @@
 package com.jackliu.signalatlas.spec;
 
+import com.jackliu.signalatlas.exception.ResourceNotFoundException;
 import com.jackliu.signalatlas.radio.RadioModel;
 import com.jackliu.signalatlas.radio.RadioModelRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class RadioSpecService {
 
     public RadioSpec addSpecToRadioModel(Long radioModelId, RadioSpecRequest request) {
         RadioModel radioModel = radioModelRepository.findById(radioModelId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Radio model not found: " + radioModelId
                 ));
 
@@ -39,7 +40,7 @@ public class RadioSpecService {
 
     public RadioSpec updateSpec(Long specId, RadioSpecRequest request) {
         RadioSpec existingSpec = radioSpecRepository.findById(specId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Radio spec not found: " + specId
                 ));
 
@@ -50,7 +51,7 @@ public class RadioSpecService {
 
     public void deleteSpec(Long specId) {
         RadioSpec existingSpec = radioSpecRepository.findById(specId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Radio spec not found: " + specId
                 ));
 

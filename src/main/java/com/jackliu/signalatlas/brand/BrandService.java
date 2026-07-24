@@ -1,5 +1,7 @@
 package com.jackliu.signalatlas.brand;
 
+import com.jackliu.signalatlas.exception.DuplicateResourceException;
+import com.jackliu.signalatlas.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +21,12 @@ public class BrandService {
 
     public Brand getBrandById(Long id) {
         return brandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Brand not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand not found: " + id));
     }
 
     public Brand createBrand(Brand brand) {
         if (brandRepository.existsByNameIgnoreCase(brand.getName())) {
-            throw new RuntimeException("Duplicate brand name: " + brand.getName());
+            throw new DuplicateResourceException("Duplicate brand name: " + brand.getName());
         }
 
         return brandRepository.save(brand);

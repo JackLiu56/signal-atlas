@@ -2,6 +2,8 @@ package com.jackliu.signalatlas.radio;
 
 import com.jackliu.signalatlas.brand.Brand;
 import com.jackliu.signalatlas.brand.BrandRepository;
+import com.jackliu.signalatlas.exception.DuplicateResourceException;
+import com.jackliu.signalatlas.exception.ResourceNotFoundException;
 import com.jackliu.signalatlas.spec.RadioSpecRepository;
 import com.jackliu.signalatlas.spec.RadioSpecResponse;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class RadioModelService {
 
     public RadioModel getRadioModelById(Long id) {
         return radioModelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Radio model not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Radio model not found: " + id));
     }
 
     public RadioModelDetailResponse getRadioModelDetailById(Long id) {
@@ -52,7 +54,7 @@ public class RadioModelService {
 
     public RadioModel createRadioModel(RadioModelRequest request) {
         Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found: " + request.getBrandId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand not found: " + request.getBrandId()));
 
         boolean duplicateExists =
                 radioModelRepository
@@ -63,7 +65,7 @@ public class RadioModelService {
                         .isPresent();
 
         if (duplicateExists) {
-            throw new RuntimeException(
+            throw new DuplicateResourceException(
                     "Duplicate radio model: " +
                             brand.getName() +
                             " " +
@@ -90,7 +92,7 @@ public class RadioModelService {
                 getRadioModelById(id);
 
         Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found: " + request.getBrandId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand not found: " + request.getBrandId()));
 
         radioModelRepository
                 .findByBrand_IdAndModelNameIgnoreCase(
@@ -99,7 +101,7 @@ public class RadioModelService {
                 )
                 .ifPresent(duplicate -> {
                     if (!duplicate.getId().equals(id)) {
-                        throw new RuntimeException(
+                        throw new DuplicateResourceException(
                                 "Duplicate radio model: " +
                                         brand.getName() +
                                         " " +
