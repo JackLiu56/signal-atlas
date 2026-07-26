@@ -1,6 +1,8 @@
 package com.jackliu.signalatlas.radio;
 
 import com.jackliu.signalatlas.common.PagedResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/radios")
 @CrossOrigin(origins = "http://localhost:4200")
+@Tag(name = "Radio Models", description = "Radio model catalog, search, filter, and detail APIs")
 public class RadioModelController {
 
     private final RadioModelService radioModelService;
@@ -22,6 +25,10 @@ public class RadioModelController {
         return radioModelService.getAllRadioModels();
     }
 
+    @Operation(
+            summary = "Get radio model details",
+            description = "Returns radio model information, brand information, and technical specifications in one response."
+    )
     @GetMapping("/{id}/details")
     public RadioModelDetailResponse getRadioModelDetailById(
             @PathVariable long id
@@ -29,6 +36,10 @@ public class RadioModelController {
         return radioModelService.getRadioModelDetailById(id);
     }
 
+    @Operation(
+            summary = "Get paginated radio catalog",
+            description = "Returns a paginated and sortable radio catalog with optional filters for brand, category, frequency band, protocol, release year, and keyword."
+    )
     @GetMapping("/catalog")
     public PagedResponse<RadioModelSummaryResponse> getRadioCatalog(
             @RequestParam(required = false) Long brandId,

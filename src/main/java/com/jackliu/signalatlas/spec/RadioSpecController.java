@@ -1,5 +1,7 @@
 package com.jackliu.signalatlas.spec;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,6 +9,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
+@Tag(name = "Radio Specifications", description = "Technical specification APIs for radio models")
 public class RadioSpecController {
 
     private final RadioSpecService radioSpecService;
@@ -22,6 +25,10 @@ public class RadioSpecController {
         return radioSpecService.getSpecsByRadioModelId(radioId);
     }
 
+    @Operation(
+            summary = "Add technical specification",
+            description = "Adds one technical specification record to a radio model."
+    )
     @PostMapping("/api/radios/{radioId}/specs")
     public RadioSpec addSpecToRadioModel(
             @PathVariable Long radioId,

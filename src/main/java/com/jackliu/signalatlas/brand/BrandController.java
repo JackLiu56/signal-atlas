@@ -1,5 +1,7 @@
 package com.jackliu.signalatlas.brand;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/brands")
 @CrossOrigin(origins = "http://localhost:4200")
+@Tag(name = "Brands", description = "Brand management APIs")
 public class BrandController {
 
     private final BrandService brandService;
@@ -26,6 +29,10 @@ public class BrandController {
         return brandService.getBrandById(id);
     }
 
+    @Operation(
+            summary = "Create a brand",
+            description = "Creates a new radio manufacturer brand. Brand names must be unique."
+    )
     @PostMapping
     public Brand createBrand(@Valid @RequestBody Brand brand) {
         return brandService.createBrand(brand);
