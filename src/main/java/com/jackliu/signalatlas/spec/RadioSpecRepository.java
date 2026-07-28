@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface RadioSpecRepository extends JpaRepository<RadioSpec, Long> {
     List<RadioSpec> findByRadioModel_IdOrderByDisplayOrderAsc(Long radioModelId);
+    void deleteByRadioModel_Id(Long radioModelId);
 }

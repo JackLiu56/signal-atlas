@@ -4,9 +4,11 @@ import com.jackliu.signalatlas.common.PagedResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/radios")
@@ -118,7 +120,12 @@ public class RadioModelController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRadioModel(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteRadioModel(@PathVariable Long id) {
         radioModelService.deleteRadioModel(id);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Radio model deleted successfully",
+                "deletedRadioModelId", id.toString()
+        ));
     }
 }

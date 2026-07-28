@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,9 +126,13 @@ public class RadioModelService {
         return radioModelRepository.save(existingRadioModel);
     }
 
+    @Transactional
     public void deleteRadioModel(Long id) {
-        RadioModel existingRadioModel = getRadioModelById(id);
-        radioModelRepository.delete(existingRadioModel);
+        RadioModel radioModel = radioModelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Radio model not found: " + id));
+
+        radioSpecRepository.deleteByRadioModel_Id(id);
+        radioModelRepository.delete(radioModel);
     }
 
     public List<RadioModel> searchRadioModels(String keyword) {
