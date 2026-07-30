@@ -206,19 +206,19 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void addSpecsIfMissing(
-            RadioModel radiomodel,
+            RadioModel radioModel,
             List<RadioSpec> specs
     ){
-        List<RadioSpec> existingSpecs =
-                radioSpecRepository.findByRadioModel_IdOrderByDisplayOrderAsc(
-                        radiomodel.getId()
-                );
-        if (existingSpecs.isEmpty()) {
-            return;
-        }
-        for (RadioSpec spec : specs){
-            spec.setRadioModel(radiomodel);
-            radioSpecRepository.save(spec);
+        for (RadioSpec spec : specs) {
+            boolean exists = radioSpecRepository.existsByRadioModel_IdAndSpecNameIgnoreCase(
+                    radioModel.getId(),
+                    spec.getSpecName()
+            );
+
+            if (!exists) {
+                spec.setRadioModel(radioModel);
+                radioSpecRepository.save(spec);
+            }
         }
     }
 }
